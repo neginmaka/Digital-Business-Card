@@ -1,11 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User View</title>
-</head>
-<body>
-<h1>This is a user view page</h1>
+{% include "enduser_header.html" %}
 
-</body>
-</html>
+
+<!-- Page Header -->
+  <header class="masthead" style="background-image: url({{ url_for('static', filename='img/enduser-bg.jpg')}})">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="page-heading">
+            <h1>About Me</h1>
+            <span class="subheading">This is what I do.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+
+{% include "footer.html" %}

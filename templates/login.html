@@ -1,11 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-<h1>This is a login page</h1>
+{% import "bootstrap/wtf.html" as wtf %}
+{% include "header.html" %}
 
-</body>
-</html>
+{% block content %}
+
+
+<!-- Page Header -->
+<header class="masthead">
+
+    <h1>Login</h1>
+
+</header>
+
+<div>
+    {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+</div>
+
+{% endblock %}
