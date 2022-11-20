@@ -1,11 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-<h1>This is a home page</h1>
+{% include "header.html" %}
 
-</body>
-</html>
+<!-- Page Header -->
+<header class="masthead">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <div class="site-heading">
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container">
+<p class="lead">INSERT INTO "blog"."blog_posts" ("author_id", "title", "subtitle", "date", "body", "img_blog"127.0.0"blogusersblogurl") VALUES ('1', 'Second title', 'This is the Second subtitle and it''s not going to be very long', '10/10/10', 'This is the first subtitle and it''s not going to be very long ', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXlO7a9hUA_a1u8C0-NZpid4F4xq5soex4_SHpMlUCIg&s');</p>
+</main>
+
+{% include "footer.html" %}

@@ -5,10 +5,8 @@ from flask_bootstrap import Bootstrap
 
 import secrets
 
-secret_key = secrets.token_hex(16)
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = secret_key
+app.config['SECRET_KEY'] = secrets.token_hex(16)
 Bootstrap(app)
 
 
@@ -29,6 +27,21 @@ def login():
     return render_template("login.html", form=form)
 
 
+@app.route("/logout")
+def logout():
+    return redirect(url_for("home"))
+
+
+@app.route("/about")
+def about():
+    return redirect(url_for("home"))
+
+
+@app.route("/contact")
+def contact():
+    return redirect(url_for("home"))
+
+
 @app.route("/<username>/admin")
 def admin_view(username):
     return render_template("admin.html")
@@ -45,4 +58,4 @@ def enduser_view(username):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
