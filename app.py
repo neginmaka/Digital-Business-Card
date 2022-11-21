@@ -1,8 +1,9 @@
 import secrets
 
-from flask import Flask, render_template, redirect, url_for, json
+from werkzeug.security import generate_password_hash
+from flask import Flask, render_template, redirect, url_for, json, flash
 from flask_bootstrap import Bootstrap
-from flask_login import UserMixin
+from flask_login import UserMixin, login_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegisterForm, LoginForm
 from sqlalchemy.orm import relationship
@@ -28,8 +29,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
-    profile_pic_url = db.Column(db.String(250), nullable=False)
-    bio = db.Column(db.Text, nullable=False)
+    profile_pic_url = db.Column(db.String(250), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
     links = relationship("Link", back_populates="user")
 
 
@@ -70,10 +71,43 @@ def home():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
-    return render_template("register.html", form=form)
+    if form.validate_on_submit():
+        email = User.query.filter_by(email=form.email.data).first()
+        username = User.query.filter_by(email=form.email.data).first()
+        if email:
+            flash("You've already signed up with that email, log in instead!")
+            return redirect(url_for("login"))
+
+        if username:
+            flash(f"{username} is already taken. Let's choose a different username")
+            return render_template("register.html", form=form)
+
+        hash_and_salted_password = generate_password_hash(
+            form.password.data,
+            "pbkdf2:sha256",
+            8
+        )
+
+        new_user = User(
+            name=form.name.data,
+            email=form.email.data,
+            username=form.username.data,
+            password=hash_and_salted_password
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for("admin_view", username=form.username.data))
+    else:
+        form.name.render_kw = {"placeholder": "Enter Your Name"}
+        form.email.render_kw = {"placeholder": "Enter Your Email"}
+        form.username.render_kw = {"placeholder": "Enter Your Name"}
+        form.password.render_kw = {"placeholder": "Enter Your Password"}
+        # TODO: Login user after they are signed up
+        return render_template("register.html", form=form)
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     return render_template("login.html", form=form)

@@ -5,5 +5,13 @@ body {
 }
 
 .container {
-  max-width: 960px;
+    max-width: 960px;
+}
+
+.field-spacer {
+    margin-bottom: 1rem;
+}
+
+.control-label {
+    margin-bottom: 0.5rem;
 }
