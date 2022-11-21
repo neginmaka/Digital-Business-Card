@@ -1,0 +1,57 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@test.com",
+      "username": "admin",
+      "password": "P@ssw0rd",
+      "name": "Admin Admiani",
+      "profile_pic_url": "https://i.pinimg.com/550x/f1/4e/49/f14e4900a0e245a157bb6ce73b8a06aa.jpg",
+      "bio": "I am the admin of this universe"
+    },
+    {
+      "id": 2,
+      "email": "testuser1@test.com",
+      "username": "testuser1",
+      "password": "P@ssw0rd",
+      "name": "Test User1",
+      "profile_pic_url": "https://www.shareicon.net/download/2015/05/07/34701_man_400x400.png",
+      "bio": "I am test user 1"
+    },
+    {
+      "id": 3,
+      "email": "testuser2@test.com",
+      "username": "testuser2",
+      "password": "P@ssw0rd",
+      "name": "Test User2",
+      "profile_pic_url": "https://www.shareicon.net/download/2015/05/07/34701_man_400x400.png",
+      "bio": "I am test user 2"
+    }
+  ],
+  "links": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "label": "Google",
+      "url": "https://www.google.com"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "label": "Linkedin",
+      "url": "https://www.linkedin.com"
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "label": "Bing",
+      "url": "https://www.Bing.com"
+    },
+    {
+      "id": 4,
+      "user_id": 3,
+      "label": "MSN",
+      "url": "https://www.msn.com"
+    }
+  ]
+}
