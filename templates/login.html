@@ -4,15 +4,16 @@
 {% block content %}
 
 
-<!-- Page Header -->
-<header class="masthead">
+    <!-- Page Header -->
+    <div class="container">
+        <header class="masthead">
 
-    <h1>Login</h1>
+            <h1>Login</h1>
 
-</header>
+        </header>
 
-<div>
-    {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-</div>
+
+        {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+    </div>
 
 {% endblock %}
