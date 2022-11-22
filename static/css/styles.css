@@ -15,3 +15,24 @@ body {
 .control-label {
     margin-bottom: 0.5rem;
 }
+
+.image-container {
+  text-align: center;
+  width: 100%;
+}
+
+.mx-auto-enduser {
+    @extend .max-auto;
+    width: 350px
+}
+
+.img-cover {
+  object-fit: cover;
+  object-position: center;
+}
+
+.img-profile {
+    height: 120px;
+    width: 120px;
+    border-radius: 50%;
+}

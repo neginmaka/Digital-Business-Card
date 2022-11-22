@@ -1,21 +1,26 @@
 {% include "enduser_header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 
-<!-- Page Header -->
-  <header class="masthead" style="background-image: url({{ url_for('static', filename='img/enduser-bg.jpg')}})">
-    <div class="overlay"></div>
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 col-md-10 mx-auto">
-          <div class="page-heading">
-            <h1>About Me</h1>
-            <span class="subheading">This is what I do.</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+<!-- Image and name container. -->
+<div class="container text-center py-5 mx-auto-enduser">
+        {% if user.profile_pic_url %}
+            <div class="rounded-circle overflow-hidden shadow-4-strong">
+                <img src="{{ user.profile_pic_url }}" class="card-img-top img-cover img-profile" alt="Profile picture">
+            </div>
+        {% else %}
+            <div class="rounded-circle overflow-hidden shadow-4-strong">
+                <img src="/static/img/add_image.png" class="card-img-top img-cover img-profile" alt="Profile picture">
+            </div>
 
+        {% endif %}
+    <h2 class="fw-normal mt-4 mb-4">{{ user.name }}</h2>
+    <p>{{ user.bio }}</p>
+    <!-- Links -->
+    {% for link in links %}
+        <p><a class="btn btn-secondary d-grid mt-4" href="{{ link.url }}">{{ link.label }}</a></p>
+    {% endfor %}
+</div>
 
 
 {% include "footer.html" %}

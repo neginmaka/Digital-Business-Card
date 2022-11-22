@@ -140,7 +140,26 @@ def profile(username):
 
 @app.route("/<username>")
 def enduser_view(username):
-    return render_template("enduser.html")
+    # TODO: get user from DB
+    user = User(
+        email="admin@test.com",
+        username="admin",
+        password="P@ssw0rd",
+        name="Admin Admiani",
+        profile_pic_url="https://i.pinimg.com/550x/f1/4e/49/f14e4900a0e245a157bb6ce73b8a06aa.jpg",
+        bio="I am the admin of this universe"
+    )
+
+    links = [
+        Link(
+            label="Google",
+            url="https://www.google.com"
+        ),
+        Link(
+            label="Linkedin",
+            url="https://www.linkedin.com"
+        )]
+    return render_template("enduser.html", links=links, user=user)
 
 
 if __name__ == "__main__":
