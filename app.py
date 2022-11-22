@@ -1,12 +1,12 @@
 import secrets
 
-from werkzeug.security import generate_password_hash
 from flask import Flask, render_template, redirect, url_for, json, flash
 from flask_bootstrap import Bootstrap
-from flask_login import UserMixin, login_user, current_user
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegisterForm, LoginForm
 from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)

@@ -31,11 +31,11 @@
 <!-- Navigation -->
 
 
-<nav class="navbar navbar-expand-lg navbar-light fixed-top">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top text-muted">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <img src="https://t4.ftcdn.net/jpg/03/03/62/45/360_F_303624505_u0bFT1Rnoj8CMUSs8wMCwoKlnWlh5Jiq.jpg"
-                 width="38" height="30" class="d-inline-block align-top" alt="Bootstrap" loading="lazy">
+            <img src="../static/img/branding/Logo-small-light.png"
+                 width="155.6" height="30" class="d-inline-block align-middle" alt="Digital Business Card" loading="lazy">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent2"
                 aria-controls="navbarSupportedContent2" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,7 @@
                 </li>
                 {#                    {% else %}#}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 </li>
                 {#                    {% endif %}#}
                 <li class="nav-item dropdown">
@@ -80,7 +80,6 @@
             </ul>
             <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
         </div>
     </div>

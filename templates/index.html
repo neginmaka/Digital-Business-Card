@@ -1,21 +1,170 @@
 {% include "header.html" %}
 
-<!-- Page Header -->
-<header class="masthead">
-    <div class="overlay"></div>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                <div class="site-heading">
+
+<!--Google Fonts-->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
+
+<!--Bootstrap Icons-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" rel="stylesheet">
+
+
+<!--Bootstrap Scripts -->
+<script crossorigin="anonymous"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"></script>
+
+
+<div class="body-index">
+    <section class="colored-section" id="title">
+        <div class="container-fluid">
+            <!-- Title -->
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <h1 class="big-heading ">Digital Business Card</h1>
+                    <h4 class="text-muted">Present In Style</h4>
+                    <div class="col-md-6  col-l-6 col-xl-4">
+
+                        <button class="btn btn btn-light btn-lg download-button text-nowrap" type="button"><i
+                                class="bi bi-laptop"></i>Use it on web
+                        </button>
+                        <button class="btn btn-dark btn-lg download-button" type="button"><i class="bi bi-apple"></i>Download
+                        </button>
+                        <button class="btn btn-outline-light btn-lg download-button" type="button"><i
+                                class="bi bi-google-play"></i>Download
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <img alt="iphone-mockup" class="title-image" src="static/img/iphone6.png">
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- Features -->
+
+    <section class="white-section" id="features">
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="feature-box col-lg-4">
+                    <i class="icon bi bi-play" style="font-size: 3rem"></i>
+                    <h3 class="feature-title">Easy to setup</h3>
+                    <p class="text-muted">A few clicks away to display your connections</p>
+                </div>
+                <div class="feature-box col-lg-4">
+                    <i class="icon bi bi-square" style="font-size: 3rem"></i>
+                    <h3 class="feature-title">Elegant View</h3>
+                    <p class="text-muted">You want to be presented in class</p>
+                </div>
+                <div class="feature-box col-lg-4">
+                    <i class="icon bi bi-infinity" style="font-size: 3rem"></i>
+                    <h3 class="feature-title">Always Free</h3>
+                    <p class="text-muted">Expensive look at no cost</p>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- Testimonials -->
+
+    <section class="colored-section" id="testimonials">
+
+        <div class="carousel slide" data-ride="false" id="testimonial-carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active container-fluid">
+                    <h2 class="testimonial-text">I can present all my website links in one place.</h2>
+                    <img alt="dog-profile" class="testimonial-image" src="static/img/dog-img.jpg">
+                    <em>Pebbles, New York</em>
+                </div>
+                <div class="carousel-item container-fluid">
+                    <h2 class="testimonial-text">Simplifies the process for everyone to share multiple parts of their life and business in one inclusive link</h2>
+                    <img alt="lady-profile" class="testimonial-image" src="static/img/lady-img.jpg">
+                    <em>Beverly, Illinois</em>
+                </div>
+            </div>
+            <a class="carousel-control-prev" data-slide="prev" href="#testimonial-carousel" role="button">
+                <span class="carousel-control-prev-icon"></span>
+            </a>
+            <a class="carousel-control-next" data-slide="next" href="#testimonial-carousel" role="button">
+                <span class="carousel-control-next-icon"></span>
+            </a>
+        </div>
+
+    </section>
+
+
+    <!-- Press -->
+
+    <section class="colored-section" id="press">
+        <img alt="tc-logo" class="press-logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LinkedIn_Logo.svg/2560px-LinkedIn_Logo.svg.png">
+        <img alt="tnw-logo" class="press-logo"
+             src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/1200px-TikTok_logo.svg.png">
+        <img alt="tnw-logo" class="press-logo" src="https://ccsonc.org/wp-content/uploads/2017/06/instagram-logo.png">
+        <img alt="biz-insider-logo" class="press-logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Twitter_logo.svg/2560px-Twitter_logo.svg.png">
+        <img alt="mashable-logo" class="press-logo" src="https://www.freepnglogos.com/uploads/telegram-logo-11.png">
+
+    </section>
+
+
+    <!-- Content -->
+
+    <section class="white-section" id="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-7">
+                    <h1 class="featurette-heading fw-normal lh-1">And lastly, this one.</h1>
+                    <p class="content-text">And yes,this is the last block of representative placeholder content. Again,
+                        not
+                        really
+                        intended to be actually read, simply here to give you a better view of what this would look like
+                        with some actual content. Your content.</p>
+                </div>
+                <div class="col-md-5">
+
+                    <img src="static/img/content-img.jpg" width="500" height="auto"
+                         class="featurette-image img-fluid-end">
                 </div>
             </div>
         </div>
-    </div>
-</header>
 
-<!-- Main Content -->
-<main class="container">
-<p class="lead">INSERT INTO "blog"."blog_posts" ("author_id", "title", "subtitle", "date", "body", "img_blog"127.0.0"blogusersblogurl") VALUES ('1', 'Second title', 'This is the Second subtitle and it''s not going to be very long', '10/10/10', 'This is the first subtitle and it''s not going to be very long ', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXlO7a9hUA_a1u8C0-NZpid4F4xq5soex4_SHpMlUCIg&s');</p>
-</main>
+    </section>
 
+
+    <!-- Call to Action -->
+
+    <section class="colored-section">
+        <div class="container-fluid">
+
+            <h3>Find the True Love of Your Dog's Life Today.</h3>
+
+            <div>
+                <button class="btn btn btn-light btn-lg download-button" type="button"><i
+                        class="bi bi-laptop"></i>Use it on web
+                </button>
+                <button class="btn btn-dark btn-lg download-button" type="button"><i class="bi bi-apple"></i>Download
+                </button>
+                <button class="btn btn-outline-light btn-lg download-button" type="button"><i
+                        class="bi bi-google-play"></i>Download
+                </button>
+            </div>
+
+        </div>
+    </section>
+</div>
 {% include "footer.html" %}
