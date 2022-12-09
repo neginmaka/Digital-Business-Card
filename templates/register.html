@@ -3,35 +3,52 @@
 
 
 <div class="container">
-    <form class="form form-horizontal mb-3 col-lg-6 col-md-6 col-sm-6" method="post" role="form">
-        <div>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul class=flashes>
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
+    <main>
+        <div class="py-5 text-center">
+            <h2>Register</h2>
+            <p class="lead">We don't limit you on how you wish to register.</p>
+            <p>You can use our native secure registration form or take advantage of third-party identity providers.</p>
         </div>
-        {{ form.hidden_tag() }}
-        {{ wtf.form_errors(form, hiddens="only") }}
-        <div class="form-label field-spacer">
-            {{ wtf.form_field(form.name, class_="form-control field-spacer") }}
+        <div class="row g-5">
+            <div class="col-md-5 col-lg-5 order-last">
+                <h2 class="danger">To add Okta link or SIW later</h2>
+            </div>
+            <div class="col-md-6 col-lg-7 content-left">
+                <form class="form form-horizontal mb-3 col-lg-11 col-md-11 col-sm-6" method="post" role="form">
+                    <div>
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <ul class=flashes>
+                                    {% for message in messages %}
+                                        <p>{{ message }}</p>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    {{ form.hidden_tag() }}
+                    {{ wtf.form_errors(form, hiddens="only") }}
+                    <div class="form-label field-spacer">
+                        {{ wtf.form_field(form.name, class_="form-control field-spacer") }}
 
-            {{ wtf.form_field(form.email) }}
-            <div id="emailHelp" class="form-text field-spacer">We'll never share your email with anyone else.</div>
+                        {{ wtf.form_field(form.email) }}
+                        <div id="emailHelp" class="form-text field-spacer">We'll never share your email with anyone
+                            else.
+                        </div>
 
-            {{ wtf.form_field(form.username, class_="form-control") }}
-            <div id="usernameHelp" class="form-text field-spacer">This username must be unique with no `@`</div>
-            {{ wtf.form_field(form.password) }}
-            <span id="passwordHelpInline" class="form-text field-spacer">
+                        {{ wtf.form_field(form.username, class_="form-control") }}
+                        <div id="usernameHelp" class="form-text field-spacer">This username must be unique with no `@`
+                        </div>
+                        {{ wtf.form_field(form.password) }}
+                        <span id="passwordHelpInline" class="form-text field-spacer">
           Must be 8-20 characters long.
         </span>
+                    </div>
+                    {{ wtf.form_field(form.submit, class="btn btn-primary bottom", button_map={"submit": "primary"}, novalidate=True) }}
+                </form>
+            </div>
         </div>
-        {{ wtf.form_field(form.submit, class="btn btn-primary bottom", button_map={"submit": "primary"}, novalidate=True) }}
-    </form>
+    </main>
 </div>
 
 {% include "footer.html" %}

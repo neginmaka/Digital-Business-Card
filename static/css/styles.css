@@ -216,3 +216,8 @@ p {
     transform: rotate(0);
   }
 }
+
+/* login and registration forms */
+.content-left {
+  border-right: 1px solid #E6D5B8;
+}
