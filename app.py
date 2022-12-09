@@ -125,7 +125,7 @@ def about():
 
 @app.route("/contact")
 def contact():
-    return redirect(url_for("home"))
+    return render_template("contact.html")
 
 
 @app.route("/<username>/admin")
