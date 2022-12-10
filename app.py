@@ -120,7 +120,7 @@ def logout():
 
 @app.route("/about")
 def about():
-    return redirect(url_for("home"))
+    return render_template("about.html")
 
 
 @app.route("/contact")
