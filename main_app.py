@@ -1,6 +1,16 @@
 import secrets
 
-from flask import Flask, render_template, redirect, url_for, json, flash
+import requests
+
+from flask import Flask, render_template, redirect, url_for, json, flash, request
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
+from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -15,6 +25,13 @@ Bootstrap(app)
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///dbc.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+APP_STATE = 'ApplicationState'
+NONCE = 'SampleNonce'
 
 # create and initialize the app with the extension
 db = SQLAlchemy(app)
@@ -32,6 +49,26 @@ class User(UserMixin, db.Model):
     profile_pic_url = db.Column(db.String(250), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     links = relationship("Link", back_populates="user")
+
+    def claims(self):
+        """Use this method to render all assigned claims on profile page."""
+        return {'name': self.name,
+                'email': self.email}.items()
+
+    @staticmethod
+    def get(user_id):
+        return User.query.filter_by(id=user_id).first()
+
+    @staticmethod
+    def create(name, email, username, password):
+        new_user = User(
+            name=name,
+            email=email,
+            username=username,
+            password=password
+        )
+        db.session.add(new_user)
+        db.session.commit()
 
 
 class Link(db.Model):
@@ -63,6 +100,11 @@ with app.app_context():
     populate_test_data()
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -88,15 +130,12 @@ def register():
             8
         )
 
-        new_user = User(
+        User.create(
             name=form.name.data,
             email=form.email.data,
             username=form.username.data,
-            password=hash_and_salted_password
-        )
+            password=hash_and_salted_password)
 
-        db.session.add(new_user)
-        db.session.commit()
         return redirect(url_for("admin_view", username=form.username.data))
     else:
         form.name.render_kw = {"placeholder": "Enter Your Name"}
@@ -111,6 +150,76 @@ def register():
 def login():
     form = LoginForm()
     return render_template("login.html", form=form)
+
+
+@app.route("/authorization-code/callback")
+def callback():
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    code = request.args.get("code")
+    if not code:
+        return "The code was not returned or is not accessible", 403
+    query_params = {'grant_type': 'authorization_code',
+                    'code': code,
+                    'redirect_uri': request.base_url
+                    }
+    query_params = requests.compat.urlencode(query_params)
+    exchange = requests.post(
+        config["token_uri"],
+        headers=headers,
+        data=query_params,
+        auth=(config["client_id"], config["client_secret"]),
+    ).json()
+
+    # Get tokens and validate
+    if not exchange.get("token_type"):
+        return "Unsupported token type. Should be 'Bearer'.", 403
+    access_token = exchange["access_token"]
+    id_token = exchange["id_token"]
+
+    if not is_access_token_valid(access_token, config["issuer"]):
+        return "Access token is invalid", 403
+
+    if not is_id_token_valid(id_token, config["issuer"], config["client_id"], NONCE):
+        return "ID token is invalid", 403
+
+    # Authorization flow successful, get userinfo and login user
+    userinfo_response = requests.get(config["userinfo_uri"],
+                                     headers={'Authorization': f'Bearer {access_token}'}).json()
+
+    unique_id = userinfo_response["sub"]
+    user_email = userinfo_response["email"]
+    user_name = userinfo_response["given_name"]
+
+    user = User(
+        id_=unique_id, name=user_name, email=user_email
+    )
+
+    if not User.get(unique_id):
+        User.create(unique_id, user_name, user_email)
+
+    login_user(user)
+
+    return redirect(url_for("profile"))
+
+
+@app.route("/login/okta")
+def login_okta():
+    # get request params
+    query_params = {'client_id': config["client_id"],
+                    'redirect_uri': config["redirect_uri"],
+                    'scope': "openid email profile",
+                    'state': APP_STATE,
+                    'nonce': NONCE,
+                    'response_type': 'code',
+                    'response_mode': 'query'}
+
+    # build request_uri
+    request_uri = "{base_url}?{query_params}".format(
+        base_url=config["auth_uri"],
+        query_params=requests.compat.urlencode(query_params)
+    )
+
+    return redirect(request_uri)
 
 
 @app.route("/logout")
