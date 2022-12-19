@@ -2,10 +2,9 @@ import secrets
 
 import requests
 
-from flask import Flask, render_template, redirect, url_for, json, flash, request
+from flask import Flask, render_template, redirect, url_for, json, request
 from flask_login import (
     LoginManager,
-    current_user,
     login_required,
     login_user,
     logout_user,
@@ -14,9 +13,8 @@ from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from forms import RegisterForm, LoginForm
+from forms import LoginForm
 from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -28,6 +26,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Login manager
 login_manager = LoginManager()
+# Default redirect page for login-required routes
+login_manager.login_view = "login"
 login_manager.init_app(app)
 
 APP_STATE = 'ApplicationState'
@@ -41,10 +41,9 @@ db.init_app(app)
 # CONFIGURE TABLES
 class User(UserMixin, db.Model):
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(100), primary_key=True)
     email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
     name = db.Column(db.String(100))
     profile_pic_url = db.Column(db.String(250), nullable=True)
     bio = db.Column(db.Text, nullable=True)
@@ -60,13 +59,12 @@ class User(UserMixin, db.Model):
         return User.query.filter_by(id=user_id).first()
 
     @staticmethod
-    def create(name, email, username, password):
+    def create(name, email, username, id):
         new_user = User(
             name=name,
             email=email,
             username=username,
-            password=password
-        )
+            id=id)
         db.session.add(new_user)
         db.session.commit()
 
@@ -74,12 +72,13 @@ class User(UserMixin, db.Model):
 class Link(db.Model):
     __tablename__ = "links"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = db.Column(db.String, db.ForeignKey("users.id"))
     user = relationship("User", back_populates="links")
     label = db.Column(db.String(250), nullable=False)
     url = db.Column(db.String(250), nullable=False)
 
 
+# TODO: Re-define this function to work with Okta.
 def populate_test_data():
     """
     If no users/links are in the database, this function populates some default users for testing purposes.
@@ -97,53 +96,18 @@ def populate_test_data():
 
 with app.app_context():
     db.create_all()
-    populate_test_data()
+    # TODO: Re-define this function to work with Okta.
+    # populate_test_data()
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+def load_user(id):
+    return User.get(id)
 
 
 @app.route("/")
 def home():
     return render_template("index.html")
-
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        email = User.query.filter_by(email=form.email.data).first()
-        username = User.query.filter_by(email=form.email.data).first()
-        if email:
-            flash("You've already signed up with that email, log in instead!")
-            return redirect(url_for("login"))
-
-        if username:
-            flash(f"{username} is already taken. Let's choose a different username")
-            return render_template("register.html", form=form)
-
-        hash_and_salted_password = generate_password_hash(
-            form.password.data,
-            "pbkdf2:sha256",
-            8
-        )
-
-        User.create(
-            name=form.name.data,
-            email=form.email.data,
-            username=form.username.data,
-            password=hash_and_salted_password)
-
-        return redirect(url_for("admin_view", username=form.username.data))
-    else:
-        form.name.render_kw = {"placeholder": "Enter Your Name"}
-        form.email.render_kw = {"placeholder": "Enter Your Email"}
-        form.username.render_kw = {"placeholder": "Enter Your Name"}
-        form.password.render_kw = {"placeholder": "Enter Your Password"}
-        # TODO: Login user after they are signed up
-        return render_template("register.html", form=form)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -186,20 +150,31 @@ def callback():
     userinfo_response = requests.get(config["userinfo_uri"],
                                      headers={'Authorization': f'Bearer {access_token}'}).json()
 
-    unique_id = userinfo_response["sub"]
+    user_id = userinfo_response["sub"]
     user_email = userinfo_response["email"]
-    user_name = userinfo_response["given_name"]
+    user_first_name = userinfo_response["given_name"]
+    user_last_name = userinfo_response["family_name"]
+    user_full_name = f"{user_first_name} {user_last_name}"
+    user_profile_username = userinfo_response["profile_username"]
 
     user = User(
-        id_=unique_id, name=user_name, email=user_email
+        name=user_full_name,
+        username=user_profile_username,
+        email=user_email,
+        id=user_id
     )
 
-    if not User.get(unique_id):
-        User.create(unique_id, user_name, user_email)
+    if not User.get(user_id):
+        User.create(
+            name=user.name,
+            username=user.username,
+            email=user.email,
+            id=user.id
+        )
 
     login_user(user)
 
-    return redirect(url_for("profile"))
+    return redirect(url_for("admin_view", username=user_profile_username))
 
 
 @app.route("/login/okta")
@@ -222,8 +197,9 @@ def login_okta():
     return redirect(request_uri)
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
+    logout_user()
     return redirect(url_for("home"))
 
 
@@ -238,11 +214,13 @@ def contact():
 
 
 @app.route("/<username>/admin")
+@login_required
 def admin_view(username):
     return render_template("admin.html")
 
 
 @app.route("/<username>/profile")
+@login_required
 def profile(username):
     return render_template("profile.html")
 
@@ -253,7 +231,6 @@ def enduser_view(username):
     user = User(
         email="admin@test.com",
         username="admin",
-        password="P@ssw0rd",
         name="Admin Admiani",
         profile_pic_url="https://i.pinimg.com/550x/f1/4e/49/f14e4900a0e245a157bb6ce73b8a06aa.jpg",
         bio="I am the admin of this universe"
