@@ -1,12 +1,50 @@
 {% include "header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
-<div class="container">
-    <main>
-        <div class="py-5 text-center">
-            <h1>Admin Panel</h1>
-            <p class="lead">Under construction...</p>
+
+<div class="container text-center py-5 mx-auto-enduser">
+
+    {% if profile_pic_url %}
+        <div class="rounded-circle overflow-hidden shadow-4-strong">
+            <img src="{{ profile_pic_url }}" class="card-img-top img-cover img-profile" alt="Profile picture">
         </div>
-    </main>
+    {% else %}
+        <div class="rounded-circle overflow-hidden shadow-4-strong">
+            <img src="/static/img/add_image.png" class="card-img-top img-cover img-profile" alt="Profile picture">
+        </div>
+    {% endif %}
+</div>
+
+
+<div class="container text-center col-lg-5">
+    <form>
+        {{ wtf.form_field(admin_form["bio"], class="form-control p-3") }}
+        {% for i in range(0, admin_form.links|length) %}
+            <div class="row py-3">
+                <div class="col">
+                    {{ wtf.form_field(admin_form.links[i]["name"]) }}
+                </div>
+                <div class="col">
+                    {{ wtf.form_field(admin_form.links[i]["url"]) }}
+                </div>
+            </div>
+        {% endfor %}
+        {% if admin_form.links|length < 5 %}
+            {% for i in range(0, 5-admin_form.links|length) %}
+                <div class="row py-3">
+                    <div class="col">
+                        <label class="control-label" for="links-1-url">Name</label>
+                        <input class="form-control" placeholder="Your new label">
+                    </div>
+                    <div class="col">
+                        <label class="control-label" for="links-1-url">Url</label>
+                        <input class="form-control" placeholder="Your new url">
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <a class="btn btn-primary" href="">Save</a>
+    </form>
 </div>
 
 {% include "footer.html" %}

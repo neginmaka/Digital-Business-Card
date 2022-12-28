@@ -1,19 +1,15 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, FieldList, FormField, TextAreaField
 from wtforms.validators import DataRequired, URL
 
 
 # Create WTForm
-
-class RegisterForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
-    username = StringField("Username", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    submit = SubmitField("SIGN ME UP!", validators=[DataRequired()])
+class LinkForm(FlaskForm):
+    name = StringField(validators=[DataRequired()])
+    url = StringField(validators=[DataRequired()])
 
 
-class LoginForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    submit = SubmitField("LET ME IN!", validators=[DataRequired()])
+class AdminForm(FlaskForm):
+    bio = TextAreaField("Bio", validators=[DataRequired()])
+    links = FieldList(FormField(LinkForm))
+    submit = SubmitField("Save", validators=[DataRequired()])

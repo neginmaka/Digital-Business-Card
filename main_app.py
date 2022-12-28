@@ -13,7 +13,7 @@ from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from forms import LoginForm
+from forms import AdminForm, LinkForm
 from sqlalchemy.orm import relationship
 
 app = Flask(__name__)
@@ -112,8 +112,7 @@ def home():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
-    return render_template("login.html", form=form)
+    return render_template("login.html")
 
 
 @app.route("/authorization-code/callback")
@@ -214,9 +213,29 @@ def contact():
 
 
 @app.route("/<username>/admin")
-@login_required
+# @login_required
 def admin_view(username):
-    return render_template("admin.html")
+    user = User(
+        email="admin@test.com",
+        username="admin",
+        name="Admin Admiani",
+        profile_pic_url="https://i.pinimg.com/550x/f1/4e/49/f14e4900a0e245a157bb6ce73b8a06aa.jpg",
+        bio="I am the admin of this universe"
+    )
+
+    g_link = LinkForm()
+    g_link.url = "https://www.google.com"
+    g_link.name = "Google"
+
+    l_link = LinkForm()
+    l_link.url = "https://www.linkedin.com"
+    l_link.name = "LinkedIn"
+    links = [
+        l_link,
+        g_link]
+
+    admin_form = AdminForm(bio=user.bio, links=links)
+    return render_template("admin.html", admin_form=admin_form, profile_pic_url=user.profile_pic_url)
 
 
 @app.route("/<username>/profile")
