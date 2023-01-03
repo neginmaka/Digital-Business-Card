@@ -1,20 +1,21 @@
 import secrets
 
+import flask
 import requests
-
 from flask import Flask, render_template, redirect, url_for, json, request
+from flask_bootstrap import Bootstrap
 from flask_login import (
     LoginManager,
     login_required,
     login_user,
-    logout_user,
+    logout_user
 )
-from okta_helpers import is_access_token_valid, is_id_token_valid, config
-from flask_bootstrap import Bootstrap
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from forms import AdminForm, LinkForm
+from forms import AdminForm
+from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
+from utils import modify_links
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -36,6 +37,9 @@ NONCE = 'SampleNonce'
 # create and initialize the app with the extension
 db = SQLAlchemy(app)
 db.init_app(app)
+
+# total number of rows for name and url
+TOTAL_ROWS = 5
 
 
 # CONFIGURE TABLES
@@ -212,30 +216,37 @@ def contact():
     return render_template("contact.html")
 
 
-@app.route("/<username>/admin")
-# @login_required
+@app.route("/<username>/admin", methods=["GET", "POST"])
+@login_required
 def admin_view(username):
-    user = User(
-        email="admin@test.com",
-        username="admin",
-        name="Admin Admiani",
-        profile_pic_url="https://i.pinimg.com/550x/f1/4e/49/f14e4900a0e245a157bb6ce73b8a06aa.jpg",
-        bio="I am the admin of this universe"
-    )
+    user = User.query.filter_by(username=username).first()
+    links = Link.query.filter_by(user_id=user.id).all()
+    links = modify_links(links, TOTAL_ROWS)
+    form = AdminForm(bio=user.bio, links=links)
 
-    g_link = LinkForm()
-    g_link.url = "https://www.google.com"
-    g_link.name = "Google"
+    if flask.request.method == "POST":
+        data = request.form
+        bio = data["bio"]
+        links_list = []
 
-    l_link = LinkForm()
-    l_link.url = "https://www.linkedin.com"
-    l_link.name = "LinkedIn"
-    links = [
-        l_link,
-        g_link]
+        if bio != user.bio:
+            user.bio = bio
+        for i in range(TOTAL_ROWS):
+            label = request.form.get(f'links-{i}-label')
+            url = request.form.get(f'links-{i}-url')
+            if label and url:
+                links_list.append({
+                    "label": label,
+                    "url": url,
+                    "user_id": user.id
+                })
 
-    admin_form = AdminForm(bio=user.bio, links=links)
-    return render_template("admin.html", admin_form=admin_form, profile_pic_url=user.profile_pic_url)
+        db.session.query(Link).filter_by(user_id=user.id).delete()
+        db.session.bulk_insert_mappings(Link, links_list)
+        db.session.commit()
+        return redirect(url_for("enduser_view", username=username))
+
+    return render_template("admin.html", admin_form=form, profile_pic_url=user.profile_pic_url)
 
 
 @app.route("/<username>/profile")
@@ -246,24 +257,10 @@ def profile(username):
 
 @app.route("/<username>")
 def enduser_view(username):
-    # TODO: get user from DB
-    user = User(
-        email="admin@test.com",
-        username="admin",
-        name="Admin Admiani",
-        profile_pic_url="https://i.pinimg.com/550x/f1/4e/49/f14e4900a0e245a157bb6ce73b8a06aa.jpg",
-        bio="I am the admin of this universe"
-    )
-
-    links = [
-        Link(
-            label="Google",
-            url="https://www.google.com"
-        ),
-        Link(
-            label="Linkedin",
-            url="https://www.linkedin.com"
-        )]
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return "Try a different user, the user doesn't exist."
+    links = Link.query.filter_by(user_id=user.id).all()
     return render_template("enduser.html", links=links, user=user)
 
 

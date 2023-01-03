@@ -25,3 +25,35 @@
 </head>
 
 <body>
+
+<!-- Navigation -->
+
+
+<nav class="navbar navbar-expand-lg navbar-light fixed-top text-muted">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img src="../static/img/branding/Logo-small-light.png"
+                 width="155.6" height="30" class="d-inline-block align-middle" alt="Digital Business Card"
+                 loading="lazy">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent2"
+                aria-controls="navbarSupportedContent2" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent2">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_view', username=user.username) }}">Admin Panel</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            </form>
+        </div>
+    </div>
+</nav>

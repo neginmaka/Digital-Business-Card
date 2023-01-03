@@ -16,35 +16,21 @@
 </div>
 
 
-<div class="container text-center col-lg-5">
-    <form>
-        {{ wtf.form_field(admin_form["bio"], class="form-control p-3") }}
-        {% for i in range(0, admin_form.links|length) %}
-            <div class="row py-3">
-                <div class="col">
-                    {{ wtf.form_field(admin_form.links[i]["name"]) }}
-                </div>
-                <div class="col">
-                    {{ wtf.form_field(admin_form.links[i]["url"]) }}
-                </div>
-            </div>
-        {% endfor %}
-        {% if admin_form.links|length < 5 %}
-            {% for i in range(0, 5-admin_form.links|length) %}
+<div class="container text-center col-lg-7">
+        <form method="POST">
+            {{ wtf.form_field(admin_form["bio"], class="form-control p-3") }}
+            {% for link in admin_form.links %}
                 <div class="row py-3">
-                    <div class="col">
-                        <label class="control-label" for="links-1-url">Name</label>
-                        <input class="form-control" placeholder="Your new label">
+                    <div class="col-4">
+                        {{ wtf.form_field(link["label"]) }}
                     </div>
                     <div class="col">
-                        <label class="control-label" for="links-1-url">Url</label>
-                        <input class="form-control" placeholder="Your new url">
+                        {{ wtf.form_field(link["url"]) }}
                     </div>
                 </div>
             {% endfor %}
-        {% endif %}
-        <a class="btn btn-primary" href="">Save</a>
-    </form>
+            {{ wtf.form_field(admin_form["submit"], class="btn btn-primary") }}
+        </form>
 </div>
 
 {% include "footer.html" %}
