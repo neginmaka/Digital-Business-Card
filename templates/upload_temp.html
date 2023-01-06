@@ -1,0 +1,9 @@
+{% include "header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+<form method="POST" enctype="multipart/form-data">
+  {{ form.photo(accept='image/*') }}
+  {{ form.submit }}
+</form>
+
+{% include "footer.html" %}

@@ -1,3 +1,4 @@
+import os
 import secrets
 
 import flask
@@ -12,10 +13,12 @@ from flask_login import (
 )
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from forms import AdminForm
+from forms import AdminForm, PhotoForm
 from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
 from utils import modify_links
+from werkzeug.utils import secure_filename
+from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -24,6 +27,8 @@ Bootstrap(app)
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///dbc.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = ".\\static\\img\\users"
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Login manager
 login_manager = LoginManager()
@@ -96,6 +101,19 @@ def populate_test_data():
             db.session.bulk_insert_mappings(User, users)
             db.session.bulk_insert_mappings(Link, links)
             db.session.commit()
+
+
+def compress_image(filename):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+    # Check the file size
+    file_size = os.path.getsize(file_path)
+    if file_size > 100000:
+        # Compress the image
+        image = Image.open(file_path)
+        image.save(file_path, optimize=True, quality=50)
+        # repeat to ensure that the file size is under 100 Kb
+        compress_image(filename)
 
 
 with app.app_context():
@@ -249,10 +267,20 @@ def admin_view(username):
     return render_template("admin.html", admin_form=form, profile_pic_url=user.profile_pic_url)
 
 
-@app.route("/<username>/profile")
-@login_required
-def profile(username):
-    return render_template("profile.html")
+@app.route('/<username>/upload', methods=['GET', 'POST'])
+def upload(username):
+    form = PhotoForm()
+    if flask.request.method == "POST":
+        # Get the uploaded file
+        file = request.files['photo']
+
+        # Generate the filename using the username
+        filename = f'{username}.jpg'
+        # Save the file to the server
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        compress_image(filename)
+        return filename
+    return render_template('upload_temp.html', form=form)
 
 
 @app.route("/<username>")

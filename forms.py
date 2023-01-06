@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, FieldList, FormField, TextAreaField
-from wtforms.validators import DataRequired, URL, InputRequired, Optional, Length
+from flask_wtf.file import FileAllowed
+from wtforms import StringField, SubmitField, FileField, FieldList, FormField, TextAreaField
+from wtforms.validators import DataRequired, URL, Optional, Length
 
 
 # Create WTForm
@@ -24,3 +25,9 @@ class AdminForm(FlaskForm):
                         )
     links = FieldList(FormField(LinkForm))
     submit = SubmitField("Save")
+
+
+class PhotoForm(FlaskForm):
+    photo = FileField('Upload Photo', validators=[FileAllowed(['jpg', 'png', 'gif'])])
+    submit = SubmitField("Submit")
+
