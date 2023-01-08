@@ -24,10 +24,9 @@ class AdminForm(FlaskForm):
                                    'placeholder': 'Tell other people who are you and what you can do'}
                         )
     links = FieldList(FormField(LinkForm))
-    submit = SubmitField("Save")
+    submit = SubmitField("Save", id="submit-admin-form")
 
 
 class PhotoForm(FlaskForm):
-    photo = FileField('Upload Photo', validators=[FileAllowed(['jpg', 'png', 'gif'])])
-    submit = SubmitField("Submit")
-
+    photo = FileField("Upload Profile Photo", validators=[FileAllowed(['jpg', 'png', 'gif'])])
+    submit = SubmitField("Upload", id="upload-photo")

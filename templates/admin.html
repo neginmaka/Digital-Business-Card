@@ -16,21 +16,38 @@
 </div>
 
 
+<div class="container text-center col-lg-3 mx-auto">
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    <form method="POST" action="{{ url_for('upload', username=username) }}" enctype="multipart/form-data">
+        {{ wtf.form_field(profile_photo_form.photo, class="form-control", type="file", accept='image/*') }}
+        {{ wtf.form_field(profile_photo_form.submit, class="btn btn-dark m-3 w-100 mx-auto") }}
+    </form>
+</div>
+
+
 <div class="container text-center col-lg-7">
-        <form method="POST">
-            {{ wtf.form_field(admin_form["bio"], class="form-control p-3") }}
-            {% for link in admin_form.links %}
-                <div class="row py-3">
-                    <div class="col-4">
-                        {{ wtf.form_field(link["label"]) }}
-                    </div>
-                    <div class="col">
-                        {{ wtf.form_field(link["url"]) }}
-                    </div>
+    <form method="POST">
+        <hr class="mx-auto my-4">
+        {{ wtf.form_field(admin_form["bio"], class="form-control p-3 col-lg-5") }}
+        <hr class="mx-auto my-4">
+
+        {% for link in admin_form.links %}
+            <div class="row py-3">
+                <div class="col-4">
+                    {{ wtf.form_field(link["label"]) }}
                 </div>
-            {% endfor %}
-            {{ wtf.form_field(admin_form["submit"], class="btn btn-primary") }}
-        </form>
+                <div class="col">
+                    {{ wtf.form_field(link["url"]) }}
+                </div>
+            </div>
+        {% endfor %}
+        {{ wtf.form_field(admin_form["submit"], class="btn btn-dark") }}
+    </form>
 </div>
 
 {% include "footer.html" %}

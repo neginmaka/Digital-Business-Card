@@ -3,13 +3,15 @@ import secrets
 
 import flask
 import requests
+from PIL import Image
 from flask import Flask, render_template, redirect, url_for, json, request
 from flask_bootstrap import Bootstrap
 from flask_login import (
     LoginManager,
     login_required,
     login_user,
-    logout_user
+    logout_user,
+    current_user
 )
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -17,8 +19,6 @@ from forms import AdminForm, PhotoForm
 from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
 from utils import modify_links
-from werkzeug.utils import secure_filename
-from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -28,16 +28,16 @@ Bootstrap(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///dbc.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = ".\\static\\img\\users"
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Login manager
 login_manager = LoginManager()
+
 # Default redirect page for login-required routes
 login_manager.login_view = "login"
 login_manager.init_app(app)
 
 APP_STATE = 'ApplicationState'
-NONCE = 'SampleNonce'
+NONCE = secrets.token_hex(16)
 
 # create and initialize the app with the extension
 db = SQLAlchemy(app)
@@ -193,8 +193,8 @@ def callback():
             id=user.id
         )
 
+    current_user.username = user.username
     login_user(user)
-
     return redirect(url_for("admin_view", username=user_profile_username))
 
 
@@ -240,7 +240,11 @@ def admin_view(username):
     user = User.query.filter_by(username=username).first()
     links = Link.query.filter_by(user_id=user.id).all()
     links = modify_links(links, TOTAL_ROWS)
-    form = AdminForm(bio=user.bio, links=links)
+
+    admin_form = AdminForm(bio=user.bio, links=links)
+    profile_photo_form = PhotoForm()
+
+    error = request.args.get('error')
 
     if flask.request.method == "POST":
         data = request.form
@@ -264,23 +268,33 @@ def admin_view(username):
         db.session.commit()
         return redirect(url_for("enduser_view", username=username))
 
-    return render_template("admin.html", admin_form=form, profile_pic_url=user.profile_pic_url)
+    return render_template("admin.html",
+                           admin_form=admin_form,
+                           profile_pic_url=user.profile_pic_url,
+                           profile_photo_form=profile_photo_form,
+                           username=username,
+                           error=error)
 
 
-@app.route('/<username>/upload', methods=['GET', 'POST'])
+@app.route('/<username>/upload', methods=['POST'])
 def upload(username):
-    form = PhotoForm()
-    if flask.request.method == "POST":
-        # Get the uploaded file
-        file = request.files['photo']
-
+    # Get the uploaded file
+    profile_photo = request.files['photo']
+    if profile_photo:
         # Generate the filename using the username
         filename = f'{username}.jpg'
         # Save the file to the server
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        profile_pic_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        profile_photo.save(profile_pic_url)
         compress_image(filename)
-        return filename
-    return render_template('upload_temp.html', form=form)
+
+        # Update the profile_pic_url for the user
+        user = User.query.filter_by(username=username).first()
+        # Trim the '.' at the beginning of the url
+        user.profile_pic_url = profile_pic_url[1:]
+        db.session.commit()
+        return redirect(url_for("admin_view", username=username))
+    return redirect(url_for("admin_view", username=username, error="No file was selected"))
 
 
 @app.route("/<username>")
