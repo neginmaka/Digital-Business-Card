@@ -1,7 +1,7 @@
 from forms import LinkForm
 
 
-def modify_links(links, total_no_rows):
+def format_links(links, total_no_rows):
     new_links = links
     empty_link_form = LinkForm()
     empty_link_form.url = ""

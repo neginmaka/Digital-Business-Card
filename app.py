@@ -18,7 +18,7 @@ from flask_sqlalchemy import SQLAlchemy
 from forms import AdminForm, PhotoForm
 from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
-from utils import modify_links
+from utils import format_links
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -87,22 +87,6 @@ class Link(db.Model):
     url = db.Column(db.String(250), nullable=False)
 
 
-# TODO: Re-define this function to work with Okta.
-def populate_test_data():
-    """
-    If no users/links are in the database, this function populates some default users for testing purposes.
-    """
-    users = User.query.all()
-    if len(users) == 0:
-        with open("tests/test_data.json") as test_data_json:
-            test_data = json.load(test_data_json)
-            users = test_data["users"]
-            links = test_data["links"]
-            db.session.bulk_insert_mappings(User, users)
-            db.session.bulk_insert_mappings(Link, links)
-            db.session.commit()
-
-
 def compress_image(filename):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
@@ -118,8 +102,6 @@ def compress_image(filename):
 
 with app.app_context():
     db.create_all()
-    # TODO: Re-define this function to work with Okta.
-    # populate_test_data()
 
 
 @login_manager.user_loader
@@ -132,7 +114,7 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login")
 def login():
     return render_template("login.html")
 
@@ -239,7 +221,7 @@ def contact():
 def admin_view(username):
     user = User.query.filter_by(username=username).first()
     links = Link.query.filter_by(user_id=user.id).all()
-    links = modify_links(links, TOTAL_ROWS)
+    links = format_links(links, TOTAL_ROWS)
 
     admin_form = AdminForm(bio=user.bio, links=links)
     profile_photo_form = PhotoForm()
