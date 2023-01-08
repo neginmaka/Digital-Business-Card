@@ -14,8 +14,7 @@ def get_endpoints():
 
 
 def redirect_to_login_endpoints():
-    endpoints = {"/testuser/admin",
-                 "/testuser/profile"}
+    endpoints = {"/testuser/admin"}
     return endpoints
 
 
