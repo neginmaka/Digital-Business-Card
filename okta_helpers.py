@@ -1,8 +1,8 @@
 import asyncio
 import json
+from pathlib import Path
 
 from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
-
 
 loop = asyncio.get_event_loop()
 
@@ -25,11 +25,13 @@ def is_id_token_valid(token, issuer, client_id, nonce):
         return False
 
 
-def load_config(fname='./client_secrets.json'):
+def load_config(fname):
     config = None
     with open(fname) as f:
         config = json.load(f)
     return config
 
 
-config = load_config()
+THIS_FOLDER = Path(__file__).parent.resolve()
+fname_abs = THIS_FOLDER / "client_secrets.json"
+config = load_config(fname_abs)
