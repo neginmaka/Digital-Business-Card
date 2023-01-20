@@ -4,7 +4,7 @@ import secrets
 import flask
 import requests
 from PIL import Image
-from flask import Flask, render_template, redirect, url_for, json, request
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_login import (
     LoginManager,
@@ -19,15 +19,19 @@ from forms import AdminForm, PhotoForm
 from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
 from utils import format_links
+from pathlib import Path
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 Bootstrap(app)
 
+THIS_FOLDER = Path(__file__).parent.resolve()
+
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///dbc.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = ".\\static\\img\\users"
+app.config['UPLOAD_FOLDER'] = THIS_FOLDER / "static/img/users"
 
 # Login manager
 login_manager = LoginManager()
@@ -143,8 +147,9 @@ def callback():
     access_token = exchange["access_token"]
     id_token = exchange["id_token"]
 
-    if not is_access_token_valid(access_token, config["issuer"]):
-        return "Access token is invalid", 403
+    # Restriction of Okta - free account
+    # if not is_access_token_valid(access_token, config["issuer"]):
+    #     return "Access token is invalid", 403
 
     if not is_id_token_valid(id_token, config["issuer"], config["client_id"], NONCE):
         return "ID token is invalid", 403
@@ -289,4 +294,4 @@ def enduser_view(username):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
