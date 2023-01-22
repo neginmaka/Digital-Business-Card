@@ -19,19 +19,15 @@ from forms import AdminForm, PhotoForm
 from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
 from utils import format_links
-from pathlib import Path
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 Bootstrap(app)
 
-THIS_FOLDER = Path(__file__).parent.resolve()
-
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///dbc.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = THIS_FOLDER / "static/img/users"
+app.config['UPLOAD_FOLDER'] = "./static/img/users"
 
 # Login manager
 login_manager = LoginManager()
@@ -102,6 +98,11 @@ def compress_image(filename):
         image.save(file_path, optimize=True, quality=50)
         # repeat to ensure that the file size is under 100 Kb
         compress_image(filename)
+
+
+def create_directory(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 
 with app.app_context():
@@ -268,6 +269,8 @@ def upload(username):
     # Get the uploaded file
     profile_photo = request.files['photo']
     if profile_photo:
+        create_directory(app.config['UPLOAD_FOLDER'])
+
         # Generate the filename using the username
         filename = f'{username}.jpg'
         # Save the file to the server
