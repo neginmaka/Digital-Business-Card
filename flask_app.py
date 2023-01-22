@@ -19,6 +19,7 @@ from forms import AdminForm, PhotoForm
 from okta_helpers import is_access_token_valid, is_id_token_valid, config
 from sqlalchemy.orm import relationship
 from utils import format_links
+from pathlib import Path
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -27,7 +28,11 @@ Bootstrap(app)
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///dbc.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = "./static/img/users"
+
+THIS_FOLDER = Path(__file__).parent.resolve()
+app.config['RELATIVE_UPLOAD_FOLDER'] = "static/img/users"
+app.config['ABSOLUTE_UPLOAD_FOLDER'] = THIS_FOLDER / app.config['RELATIVE_UPLOAD_FOLDER']
+
 
 # Login manager
 login_manager = LoginManager()
@@ -88,7 +93,7 @@ class Link(db.Model):
 
 
 def compress_image(filename):
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = os.path.join(app.config['ABSOLUTE_UPLOAD_FOLDER'], filename)
 
     # Check the file size
     file_size = os.path.getsize(file_path)
@@ -258,7 +263,7 @@ def admin_view(username):
 
     return render_template("admin.html",
                            admin_form=admin_form,
-                           profile_pic_url=user.profile_pic_url,
+                           profile_pic_url=("/" + user.profile_pic_url) if user.profile_pic_url else None,
                            profile_photo_form=profile_photo_form,
                            username=username,
                            error=error)
@@ -269,19 +274,17 @@ def upload(username):
     # Get the uploaded file
     profile_photo = request.files['photo']
     if profile_photo:
-        create_directory(app.config['UPLOAD_FOLDER'])
-
+        create_directory(app.config['ABSOLUTE_UPLOAD_FOLDER'])
         # Generate the filename using the username
         filename = f'{username}.jpg'
         # Save the file to the server
-        profile_pic_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        profile_pic_url = os.path.join(app.config['ABSOLUTE_UPLOAD_FOLDER'], filename)
         profile_photo.save(profile_pic_url)
         compress_image(filename)
 
         # Update the profile_pic_url for the user
         user = User.query.filter_by(username=username).first()
-        # Trim the '.' at the beginning of the url
-        user.profile_pic_url = profile_pic_url[1:]
+        user.profile_pic_url = os.path.join(app.config['RELATIVE_UPLOAD_FOLDER'], filename)
         db.session.commit()
         return redirect(url_for("admin_view", username=username))
     return redirect(url_for("admin_view", username=username, error="No file was selected"))
@@ -293,7 +296,10 @@ def enduser_view(username):
     if not user:
         return "Try a different user, the user doesn't exist."
     links = Link.query.filter_by(user_id=user.id).all()
-    return render_template("enduser.html", links=links, user=user)
+    return render_template(
+        "enduser.html", links=links,
+        user=user,
+        profile_pic_url=("/" + user.profile_pic_url) if user.profile_pic_url else None, )
 
 
 if __name__ == "__main__":
