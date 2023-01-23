@@ -33,7 +33,6 @@ THIS_FOLDER = Path(__file__).parent.resolve()
 app.config['RELATIVE_UPLOAD_FOLDER'] = "static/img/users"
 app.config['ABSOLUTE_UPLOAD_FOLDER'] = THIS_FOLDER / app.config['RELATIVE_UPLOAD_FOLDER']
 
-
 # Login manager
 login_manager = LoginManager()
 
@@ -44,7 +43,7 @@ login_manager.init_app(app)
 APP_STATE = 'ApplicationState'
 NONCE = secrets.token_hex(16)
 
-# create and initialize the app with the extension
+# Create and initialize the app with the extension
 db = SQLAlchemy(app)
 db.init_app(app)
 
@@ -53,6 +52,7 @@ TOTAL_ROWS = 5
 
 
 # CONFIGURE TABLES
+# User table
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.String(100), primary_key=True)
@@ -83,6 +83,7 @@ class User(UserMixin, db.Model):
         db.session.commit()
 
 
+# Link table
 class Link(db.Model):
     __tablename__ = "links"
     id = db.Column(db.Integer, primary_key=True)
@@ -92,6 +93,7 @@ class Link(db.Model):
     url = db.Column(db.String(250), nullable=False)
 
 
+# Reduce image size of images stored in the ABSOLUTE_UPLOAD_FOLDER directory
 def compress_image(filename):
     file_path = os.path.join(app.config['ABSOLUTE_UPLOAD_FOLDER'], filename)
 
@@ -105,6 +107,7 @@ def compress_image(filename):
         compress_image(filename)
 
 
+# Create the ABSOLUTE_UPLOAD_FOLDER directory if it does not exist
 def create_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -185,7 +188,7 @@ def callback():
 
 @app.route("/login/okta")
 def login_okta():
-    # get request params
+    # Get request params
     query_params = {'client_id': config["client_id"],
                     'redirect_uri': config["redirect_uri"],
                     'scope': "openid email profile",
@@ -194,7 +197,7 @@ def login_okta():
                     'response_type': 'code',
                     'response_mode': 'query'}
 
-    # build request_uri
+    # Build request_uri
     request_uri = "{base_url}?{query_params}".format(
         base_url=config["auth_uri"],
         query_params=requests.compat.urlencode(query_params)
@@ -230,7 +233,7 @@ def admin_view(username):
     profile_photo_form = PhotoForm()
 
     error = request.args.get('error')
-
+    # If the request method is "POST", retrieves the form data of the user and saves the changes in the database
     if flask.request.method == "POST":
         data = request.form
         bio = data["bio"]
@@ -252,7 +255,7 @@ def admin_view(username):
         db.session.bulk_insert_mappings(Link, links_list)
         db.session.commit()
         return redirect(url_for("enduser_view", username=username))
-
+    # If the request method is "GET", the function renders an "admin.html"
     return render_template("admin.html",
                            admin_form=admin_form,
                            profile_pic_url=("/" + user.profile_pic_url) if user.profile_pic_url else None,
@@ -284,7 +287,9 @@ def upload(username):
 
 @app.route("/<username>")
 def enduser_view(username):
+    # Get username from user
     user = User.query.filter_by(username=username).first()
+    #  If user doesn't exist, it returns a message
     if not user:
         return "Try a different user, the user doesn't exist."
     links = Link.query.filter_by(user_id=user.id).all()
