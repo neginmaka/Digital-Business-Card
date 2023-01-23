@@ -16,7 +16,7 @@ from flask_login import (
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from forms import AdminForm, PhotoForm
-from okta_helpers import is_access_token_valid, is_id_token_valid, config
+from okta_helpers import config
 from sqlalchemy.orm import relationship
 from utils import format_links
 from pathlib import Path
@@ -151,14 +151,6 @@ def callback():
     if not exchange.get("token_type"):
         return "Unsupported token type. Should be 'Bearer'.", 403
     access_token = exchange["access_token"]
-    id_token = exchange["id_token"]
-
-    # Restriction of Okta - free account
-    # if not is_access_token_valid(access_token, config["issuer"]):
-    #     return "Access token is invalid", 403
-
-    # if not is_id_token_valid(id_token, config["issuer"], config["client_id"], NONCE):
-    #     return "ID token is invalid", 403
 
     # Authorization flow successful, get userinfo and login user
     userinfo_response = requests.get(config["userinfo_uri"],

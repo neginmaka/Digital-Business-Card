@@ -31,7 +31,7 @@
 <!-- Navigation -->
 
 
-<nav class="navbar navbar-expand-lg navbar-light fixed-top text-muted">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top text-muted align-content-start">
     <div class="container">
         <a class="navbar-brand" href="#">
             <img src="../static/img/branding/Logo-small-light.png"
@@ -66,8 +66,8 @@
                     <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
                 </li>
             </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="search_field">
+            <form class="hidden d-flex" role="search" hidden>
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="search_field" hidden>
             </form>
         </div>
     </div>

@@ -1,6 +1,6 @@
 import pytest
 
-from main_app import app
+from flask_app import app
 
 
 def get_endpoints():
